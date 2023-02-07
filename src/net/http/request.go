@@ -1023,7 +1023,7 @@ func ReadRequest(b *bufio.Reader) (*Request, error) {
 		return nil, err
 	}
 
-	delete(req.Header, "Host")
+	req.Header.Del("Host")
 	return req, err
 }
 
@@ -1085,7 +1085,7 @@ func readRequest(b *bufio.Reader) (req *Request, err error) {
 		return nil, err
 	}
 	req.Header = Header(mimeHeader)
-	if len(req.Header["Host"]) > 1 {
+	if len(req.Header.Values("Host")) > 1 {
 		return nil, fmt.Errorf("too many Host headers")
 	}
 

@@ -1,3 +1,8 @@
+# This fork
+This is a fork of Golang with some modifications to avoid header key transformations.
+Use this fork as GOROOT to build software like Caddy if you need them not to transform header key cases in their
+"canonical format". We changed only what we personally needed for it to work, there may be rough edges!
+
 # The Go Programming Language
 
 Go is an open source programming language that makes it easy to build simple,

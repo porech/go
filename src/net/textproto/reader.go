@@ -512,7 +512,7 @@ func (r *Reader) ReadMIMEHeader() (MIMEHeader, error) {
 		if !ok {
 			return m, ProtocolError("malformed MIME header line: " + string(kv))
 		}
-		key := canonicalMIMEHeaderKey(k)
+		key := string(k)
 
 		// As per RFC 7230 field-name is a token, tokens consist of one or more chars.
 		// We could return a ProtocolError here, but better to be liberal in what we
