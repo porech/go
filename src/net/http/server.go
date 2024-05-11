@@ -1016,7 +1016,8 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 	c.lastMethod = req.Method
 	c.r.setInfiniteReadLimit()
 
-	hosts, haveHost := req.Header["Host"]
+	hosts := req.Header.Values("Host")
+	haveHost := req.Header.has("Host")
 	isH2Upgrade := req.isH2Upgrade()
 	if req.ProtoAtLeast(1, 1) && (!haveHost || len(hosts) == 0) && !isH2Upgrade && req.Method != "CONNECT" {
 		return nil, badRequestError("missing required Host header")
@@ -1034,7 +1035,7 @@ func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
 			}
 		}
 	}
-	delete(req.Header, "Host")
+	req.Header.Del("Host")
 
 	ctx, cancelCtx := context.WithCancel(ctx)
 	req.ctx = ctx
@@ -1303,7 +1304,7 @@ func (cw *chunkWriter) writeHeader(p []byte) {
 			trailers = true
 		}
 	}
-	for _, v := range cw.header["Trailer"] {
+	for _, v := range cw.header.Values("Trailer") {
 		trailers = true
 		foreachHeaderElement(v, cw.res.declareTrailer)
 	}
@@ -1343,7 +1344,7 @@ func (cw *chunkWriter) writeHeader(p []byte) {
 	hasCL := w.contentLength != -1
 
 	if w.wants10KeepAlive && (isHEAD || hasCL || !bodyAllowedForStatus(w.status)) {
-		_, connectionHeaderSet := header["Connection"]
+		connectionHeaderSet := header.has("Connection")
 		if !connectionHeaderSet {
 			setHeader.connection = "keep-alive"
 		}
@@ -1436,7 +1437,7 @@ func (cw *chunkWriter) writeHeader(p []byte) {
 	code := w.status
 	if bodyAllowedForStatus(code) {
 		// If no content type, apply sniffing algorithm to body.
-		_, haveType := header["Content-Type"]
+		haveType := header.has("Content-Type")
 
 		// If the Content-Encoding was set and is non-blank,
 		// we shouldn't sniff the body. See Issue 31753.
@@ -2263,7 +2264,7 @@ func Redirect(w ResponseWriter, r *Request, url string, code int) {
 	// RFC 7231 notes that a short HTML body is usually included in
 	// the response because older user agents may not understand 301/307.
 	// Do it only if the request didn't already have a Content-Type header.
-	_, hadCT := h["Content-Type"]
+	hadCT := h.has("Content-Type")
 
 	h.Set("Location", hexEscapeNonASCII(url))
 	if !hadCT && (r.Method == "GET" || r.Method == "HEAD") {

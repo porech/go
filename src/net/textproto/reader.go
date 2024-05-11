@@ -545,10 +545,7 @@ func readMIMEHeader(r *Reader, maxMemory, maxHeaders int64) (MIMEHeader, error) 
 		if !ok {
 			return m, ProtocolError("malformed MIME header line: " + string(kv))
 		}
-		key, ok := canonicalMIMEHeaderKey(k)
-		if !ok {
-			return m, ProtocolError("malformed MIME header line: " + string(kv))
-		}
+		key := string(k)
 		for _, c := range v {
 			if !validHeaderValueByte(c) {
 				return m, ProtocolError("malformed MIME header line: " + string(kv))
